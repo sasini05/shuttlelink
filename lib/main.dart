@@ -1,0 +1,330 @@
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:shuttlelink_app/driver_auth.dart';
+import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+
+void main() async {
+  // Ensure Flutter is fully loaded before initializing Firebase
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(const ShuttleLinkApp());
+}
+
+class ShuttleLinkApp extends StatelessWidget {
+  const ShuttleLinkApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'ShuttleLink',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        scaffoldBackgroundColor: const Color(0xFF161B1B), // Dark background
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF42C79A), // Mint green
+          brightness: Brightness.dark,
+        ).copyWith(
+          primary: const Color(0xFF42C79A), // Explicitly set primary to our mint green
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF42C79A), // Button color
+            foregroundColor: Colors.white,
+            minimumSize: const Size(200, 50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+      ),
+      home: const GetStartedScreen(),
+    );
+  }
+}
+
+class GetStartedScreen extends StatelessWidget {
+  const GetStartedScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Spacer(),
+            // Displaying the logo
+            Image.asset('assets/bus_logo.png', width: 250),
+            const SizedBox(height: 100),
+            ElevatedButton(
+              onPressed: () {
+                // TODO: Navigate to Role Selection Screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),
+                );
+              },
+              child: const Text(
+                'GET STARTED',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+
+              ),
+            ),
+            const Spacer(),
+          ],
+        ),
+      ),
+    );
+
+  }
+}
+class RoleSelectionScreen extends StatelessWidget {
+  const RoleSelectionScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Image.asset('assets/bus_logo.png', height: 120),
+              ),
+              const SizedBox(height: 40),
+
+              // Custom Toggle Button for Passenger/Driver
+              Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () {
+                          // Navigate to Login as Passenger
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AuthScreen(role: 'Passenger'),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          'PASSENGER',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    Container(width: 1, color: Colors.black26), // Divider line
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () {
+                          // Navigate to Login as Driver
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const DriverWelcomeScreen(), // Links to our new flow!
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          'DRIVER',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 40),
+
+              // Informational Text
+              const Text(
+                'Welcome to ShuttleLink',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Your smart companion for booking luxury\nbuses across to NSBM',
+                style: TextStyle(color: Colors.white70),
+              ),
+              const SizedBox(height: 24),
+
+              const Text(
+                'Book in Just a Few Taps',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Search routes, choose your seat, and\nconfirm your ticket instantly',
+                style: TextStyle(color: Colors.white70),
+              ),
+              const SizedBox(height: 24),
+
+              const Text(
+                'Smart Travel Assistance',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Get real-time alerts, manage trips, and benefit\nfrom online passes for students & special needs\ntravelers',
+                style: TextStyle(color: Colors.white70),
+              ),
+
+              const Spacer(),
+
+              // Back Button
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+class AuthScreen extends StatefulWidget {
+  final String role; // 'Passenger' or 'Driver'
+  const AuthScreen({super.key, required this.role});
+
+  @override
+  State<AuthScreen> createState() => _AuthScreenState();
+}
+
+class _AuthScreenState extends State<AuthScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool isSignUp = false;
+
+  Future<void> _handleAuth() async {
+    try {
+      UserCredential userCredential;
+      if (isSignUp) {
+        userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+
+        await FirebaseDatabase.instance.ref().child('Users').child(userCredential.user!.uid).set({
+          'email': _emailController.text.trim(),
+          'role': widget.role, // Saves 'Passenger' or 'Driver' [cite: 117]
+        });
+      } else {
+        userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+      }
+
+      // ROLE CHECK LOGIC
+      final snapshot = await FirebaseDatabase.instance
+          .ref()
+          .child('Users')
+          .child(userCredential.user!.uid)
+          .get();
+
+      if (snapshot.exists) {
+        String role = (snapshot.value as Map)['role'];
+
+        if (role == 'Passenger') {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const StudentDashboard()));
+        } else if (role == 'Driver') {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DriverDashboard()));
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message ?? "Error")));
+    }
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/bus_logo.png', height: 100),
+            const SizedBox(height: 20),
+            Text(
+              isSignUp ? "Create ${widget.role} Account" : "Welcome Back ${widget.role}",
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            const SizedBox(height: 30),
+            TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(labelText: 'Email', filled: true),
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: _passwordController,
+              decoration: const InputDecoration(labelText: 'Password', filled: true),
+              obscureText: true,
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: _handleAuth,
+              child: Text(isSignUp ? 'SIGN UP' : 'SIGN IN'),
+            ),
+            TextButton(
+              onPressed: () => setState(() => isSignUp = !isSignUp),
+              child: Text(
+                isSignUp ? "Already have an account? Sign In" : "New here? Sign Up",
+                style: const TextStyle(color: Color(0xFF42C79A)),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class StudentDashboard extends StatelessWidget {
+  const StudentDashboard({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Student Portal")),
+      body: const Center(child: Text("Welcome, Student! Search for routes here.")), // [cite: 104, 134]
+    );
+  }
+}
+
+class DriverDashboard extends StatelessWidget {
+  const DriverDashboard({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Driver Portal")),
+      body: const Center(child: Text("Welcome, Driver! Manage your shuttle here.")), // [cite: 119, 135]
+    );
+  }
+}

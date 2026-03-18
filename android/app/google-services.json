@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "996811055049",
+    "project_id": "shuttlelink-373c9",
+    "storage_bucket": "shuttlelink-373c9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:996811055049:android:f0e760586cfc0693f75218",
+        "android_client_info": {
+          "package_name": "com.example.shuttlelink_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKyFnSElGLHE4L_t401k7jPZblHDrl8WY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
