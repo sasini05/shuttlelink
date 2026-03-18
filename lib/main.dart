@@ -4,7 +4,7 @@ import 'package:shuttlelink_app/driver_auth.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-
+import 'package:shuttlelink_app/pass_welcome_screen.dart';
 void main() async {
   // Ensure Flutter is fully loaded before initializing Firebase
   WidgetsFlutterBinding.ensureInitialized();
@@ -108,14 +108,15 @@ class RoleSelectionScreen extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
+                    // ... inside RoleSelectionScreen ...
                     Expanded(
                       child: TextButton(
                         onPressed: () {
-                          // Navigate to Login as Passenger
+                          // THIS IS THE FIX! It now goes to the new Image 4 screen!
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const AuthScreen(role: 'Passenger'),
+                              builder: (context) => const PassengerWelcomeScreen(),
                             ),
                           );
                         },
@@ -125,6 +126,7 @@ class RoleSelectionScreen extends StatelessWidget {
                         ),
                       ),
                     ),
+
                     Container(width: 1, color: Colors.black26), // Divider line
                     Expanded(
                       child: TextButton(
@@ -204,127 +206,4 @@ class RoleSelectionScreen extends StatelessWidget {
 
 
 
-class AuthScreen extends StatefulWidget {
-  final String role; // 'Passenger' or 'Driver'
-  const AuthScreen({super.key, required this.role});
 
-  @override
-  State<AuthScreen> createState() => _AuthScreenState();
-}
-
-class _AuthScreenState extends State<AuthScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool isSignUp = false;
-
-  Future<void> _handleAuth() async {
-    try {
-      UserCredential userCredential;
-      if (isSignUp) {
-        userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-
-        await FirebaseDatabase.instance.ref().child('Users').child(userCredential.user!.uid).set({
-          'email': _emailController.text.trim(),
-          'role': widget.role, // Saves 'Passenger' or 'Driver' [cite: 117]
-        });
-      } else {
-        userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-      }
-
-      // ROLE CHECK LOGIC
-      final snapshot = await FirebaseDatabase.instance
-          .ref()
-          .child('Users')
-          .child(userCredential.user!.uid)
-          .get();
-
-      if (snapshot.exists) {
-        String role = (snapshot.value as Map)['role'];
-
-        if (role == 'Passenger') {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const StudentDashboard()));
-        } else if (role == 'Driver') {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DriverDashboard()));
-        }
-      }
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message ?? "Error")));
-    }
-  }
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset('assets/bus_logo.png', height: 100),
-            const SizedBox(height: 20),
-            Text(
-              isSignUp ? "Create ${widget.role} Account" : "Welcome Back ${widget.role}",
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            const SizedBox(height: 30),
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email', filled: true),
-            ),
-            const SizedBox(height: 15),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Password', filled: true),
-              obscureText: true,
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: _handleAuth,
-              child: Text(isSignUp ? 'SIGN UP' : 'SIGN IN'),
-            ),
-            TextButton(
-              onPressed: () => setState(() => isSignUp = !isSignUp),
-              child: Text(
-                isSignUp ? "Already have an account? Sign In" : "New here? Sign Up",
-                style: const TextStyle(color: Color(0xFF42C79A)),
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class StudentDashboard extends StatelessWidget {
-  const StudentDashboard({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Student Portal")),
-      body: const Center(child: Text("Welcome, Student! Search for routes here.")), // [cite: 104, 134]
-    );
-  }
-}
-
-class DriverDashboard extends StatelessWidget {
-  const DriverDashboard({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Driver Portal")),
-      body: const Center(child: Text("Welcome, Driver! Manage your shuttle here.")), // [cite: 119, 135]
-    );
-  }
-}
