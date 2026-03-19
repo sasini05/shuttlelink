@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
+import 'pass_seat_selection.dart';
 
 class PassengerAvailableRidesScreen extends StatelessWidget {
   final String routeName;
@@ -207,9 +208,23 @@ class PassengerAvailableRidesScreen extends StatelessWidget {
               SizedBox(
                 height: 35,
                 child: ElevatedButton(
+                  // 👇 REPLACE THE onPressed SECTION WITH THIS 👇
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Seat Selection Coming Soon!")));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PassengerSeatSelectionScreen(
+                          rideId: rideId,
+                          driverId: 'N/A',
+                          routeDisplay: "NSBM-${routeName.toUpperCase()}",
+                          busNumber: busNumber,
+                          // This safely strips out the "Rs. " text so it passes just the number!
+                          ticketPrice: int.tryParse(price.replaceAll(RegExp(r'[^0-9]'), '')) ?? 1500,
+                        ),
+                      ),
+                    );
                   },
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF43C59E),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
