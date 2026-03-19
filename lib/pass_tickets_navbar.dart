@@ -72,7 +72,10 @@ class PassengerTicketScreen extends StatelessWidget {
                             if (now.difference(rideDate).inDays <= 7) {
                               // Determine Status (Booked = Green, Confirmed = Red)
                               // Assuming the driver will update rideData['status'] to 'Confirmed'
-                              bool isConfirmed = (rideData['status']?.toString().toLowerCase() == 'confirmed');
+                              bool isConfirmed = false;
+                              if (rideData['confirmed_seats'] != null) {
+                                isConfirmed = (rideData['confirmed_seats'] as Map).containsKey(seatNum);
+                              }
 
                               myTickets.add({
                                 'seat': seatNum,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'pass_booknow.dart';
+import 'pass_tickets_navbar.dart';
 // import 'passenger_lost_found.dart';
 // import 'passenger_feedback.dart';
 
@@ -59,7 +60,7 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
           },
         );
       case 1:
-        return const Center(child: Text("My Tickets Coming Soon", style: TextStyle(color: Colors.white)));
+        return const PassengerTicketScreen();
       case 2:
         return const Center(child: Text("Settings Coming Soon", style: TextStyle(color: Colors.white)));
       case 3:
