@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-
-// PLACEHOLDERS: We will create these next!
-// import 'passenger_book_now.dart';
+import 'pass_booknow.dart';
 // import 'passenger_lost_found.dart';
 // import 'passenger_feedback.dart';
 
@@ -185,10 +183,13 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
                         children: [
                           _buildCategoryCard(
                               'Book Now',
-                              'assets/bus_reg.png', // Ensure you name your assets to match!
+                              'assets/bus_reg.png',
                               onTap: () {
-                                //Navigator.push(innerContext, MaterialPageRoute(builder: (context) => const PassengerBookNowScreen()));
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Book Now coming soon!")));
+                                // This pushes the new screen while keeping the nav bar visible!
+                                Navigator.push(
+                                    innerContext,
+                                    MaterialPageRoute(builder: (context) => const PassengerBookNowScreen())
+                                );
                               }
                           ),
                           _buildCategoryCard(

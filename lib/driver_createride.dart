@@ -12,8 +12,10 @@ class CreateRideScreen extends StatefulWidget {
 class _CreateRideScreenState extends State<CreateRideScreen> {
   List<String> _busNumbers = [];
   String? _selectedBus;
+  String? _driverRoute;
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
+
 
   // Tracks whether it's a Morning or Evening ride
   String _selectedShift = 'Morning';
@@ -38,6 +40,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
           setState(() {
             _busNumbers = [data['busNumber'].toString()];
             _selectedBus = _busNumbers.first;
+            _driverRoute = data['route']?.toString();
           });
         }
       }
@@ -96,6 +99,7 @@ class _CreateRideScreenState extends State<CreateRideScreen> {
         await FirebaseDatabase.instance.ref().child('Rides').push().set({
           'driverId': user.uid,
           'busNumber': _selectedBus,
+          'route': _driverRoute,
           'date': "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}",
           'time': _selectedTime!.format(context),
           'shift': _selectedShift,

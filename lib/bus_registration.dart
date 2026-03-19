@@ -109,7 +109,7 @@ class _BusRegistrationScreenState extends State<BusRegistrationScreen> {
                       const SizedBox(height: 8),
                       _buildDropdown(
                         value: _selectedRoute,
-                        items: ['NSBM-KANDY', 'NSBM-COLOMBO', 'NSBM-GALLE'],
+                        items: ['NSBM-KANDY', 'NSBM-Gampaha', 'NSBM-GALLE'],
                         onChanged: (val) => setState(() => _selectedRoute = val!),
                       ),
                       const SizedBox(height: 16),
