@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'bus_rating_screen.dart';
 import 'pass_booknow.dart';
 import 'pass_tickets_navbar.dart';
-// import 'passenger_lost_found.dart';
-// import 'passenger_feedback.dart';
+import 'pass_lost_found_screen.dart';
+import 'pass_settings_screen.dart';
+import 'pass_profile_screen.dart';
+import 'pass_notifications_screen.dart';
 
 class PassengerDashboard extends StatefulWidget {
   const PassengerDashboard({super.key});
@@ -62,9 +65,9 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
       case 1:
         return const PassengerTicketScreen();
       case 2:
-        return const Center(child: Text("Settings Coming Soon", style: TextStyle(color: Colors.white)));
+        return const PassengerSettingsScreen();
       case 3:
-        return const Center(child: Text("Profile Coming Soon", style: TextStyle(color: Colors.white)));
+        return const PassengerProfileScreen();
       default:
         return _buildHomeContent(context);
     }
@@ -143,7 +146,12 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
                   decoration: const BoxDecoration(color: Colors.black26, shape: BoxShape.circle),
                   child: IconButton(
                     icon: const Icon(Icons.notifications, color: Colors.white),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                          innerContext,
+                          MaterialPageRoute(builder: (context) => const PassengerNotificationsScreen())
+                      );
+                    },
                   ),
                 ),
               ],
@@ -197,16 +205,16 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
                               'Lost & Found',
                               'assets/lost&found.png',
                               onTap: () {
-                                // Navigator.push(innerContext, MaterialPageRoute(builder: (context) => const PassengerLostFoundScreen()));
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Lost & Found coming soon!")));
+                                Navigator.push(innerContext, MaterialPageRoute(builder: (context) => const LostFoundScreen()));
+
                               }
                           ),
                           _buildCategoryCard(
                               'Feedback',
                               'assets/feedback_icon.png',
                               onTap: () {
-                                // Navigator.push(innerContext, MaterialPageRoute(builder: (context) => const PassengerFeedbackScreen()));
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Feedback coming soon!")));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => const BusRatingsScreen()));
+
                               }
                           ),
                         ],

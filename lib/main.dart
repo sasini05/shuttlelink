@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shuttlelink_app/driver_auth.dart';
 import 'firebase_options.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:shuttlelink_app/pass_welcome_screen.dart';
 void main() async {
   // Ensure Flutter is fully loaded before initializing Firebase

@@ -72,7 +72,7 @@ class _AlertScreenState extends State<AlertScreen> {
     }
   }
 
-  // 4. Submit to Firebase
+  // 4. Submit to Firebase AND Update Passenger Tickets if Cancelled
   Future<void> _submitAlert() async {
     // Validation checks
     if (_selectedBus == null) {
@@ -95,21 +95,53 @@ class _AlertScreenState extends State<AlertScreen> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        // Save to Firebase under a new 'Alerts' node
-        // We use .push() to generate a unique random ID for every alert
-        await FirebaseDatabase.instance.ref().child('Alerts').push().set({
+        final DatabaseReference dbRef = FirebaseDatabase.instance.ref();
+
+        // Format the date string exactly how it might be saved elsewhere
+        String formattedDate = "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}";
+        String formattedTime = _selectedTime!.format(context);
+
+        // 1. Save the Alert to Firebase (this hasn't changed)
+        await dbRef.child('Alerts').push().set({
           'driverId': user.uid,
           'busNumber': _selectedBus,
-          'date': "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}",
-          'time': _selectedTime!.format(context),
-          'reason': _reasonController.text.trim(), // Optional, so it's fine if it's empty
+          'date': formattedDate,
+          'time': formattedTime,
+          'reason': _reasonController.text.trim(),
           'alertType': _alertType,
-          'timestamp': ServerValue.timestamp, // Records exactly when the driver pressed submit
+          'timestamp': ServerValue.timestamp,
         });
+
+        // 🔴 NEW LOGIC: If the driver cancelled the ride, update the tickets!
+        if (_alertType == 'Cancelled') {
+          // Find all tickets in the database
+          final ticketsSnapshot = await dbRef.child('Tickets').get();
+
+          if (ticketsSnapshot.exists) {
+            final ticketsMap = ticketsSnapshot.value as Map<dynamic, dynamic>;
+
+            // Loop through every single ticket
+            ticketsMap.forEach((ticketId, ticketData) {
+              // Check if the ticket's bus number, date, and time exactly match the cancelled ride
+              if (ticketData['busNo'] == _selectedBus &&
+                  ticketData['date'] == formattedDate &&
+                  ticketData['time'] == formattedTime) {
+
+                // If it matches, update that specific ticket's status to 'Canceled'
+                dbRef.child('Tickets').child(ticketId).update({'status': 'Canceled'});
+              }
+            });
+          }
+        }
 
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Alert sent to passengers successfully!"), backgroundColor: Color(0xFF42C79A)),
+          SnackBar(
+              content: Text(_alertType == 'Cancelled'
+                  ? "Ride cancelled and passenger tickets updated!"
+                  : "Alert sent to passengers successfully!"),
+              backgroundColor: const Color(0xFF42C79A)
+          ),
         );
         Navigator.pop(context);
       }
@@ -117,7 +149,6 @@ class _AlertScreenState extends State<AlertScreen> {
       _showError("Failed to send alert: $e");
     }
   }
-
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
   }

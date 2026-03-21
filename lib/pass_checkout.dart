@@ -118,7 +118,7 @@ class _PassengerCheckoutScreenState extends State<PassengerCheckoutScreen> {
             const SizedBox(height: 15),
 
             // Dynamically generate tickets
-            ..._currentSeats.map((seat) => _buildTicketCard(seat)).toList(),
+            ..._currentSeats.map((seat) => _buildTicketCard(seat)),
 
             const SizedBox(height: 30),
 
